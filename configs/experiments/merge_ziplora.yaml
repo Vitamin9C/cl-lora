@@ -1,0 +1,15 @@
+# ZipLoRA merging experiment configuration
+
+# Inherit from default config  
+_base_: ../default.yaml
+
+model:
+  backbone: spectral_gpt
+  lora_r: 4
+  lora_alpha: 16
+
+experiment:
+  type: ZipLoRA
+  memory_size: 500      # Total budget for replay memory
+  train_samples: 22482
+  test_samples: 8176

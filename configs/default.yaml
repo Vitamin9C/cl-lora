@@ -1,0 +1,49 @@
+# Default configuration for CL-LoRA experiments
+# Override values via command line or environment variables
+
+# =============================================================================
+# Model Configuration
+# =============================================================================
+model:
+  backbone: spectral_gpt  # Options: spectral_gpt, softcon
+  lora_r: 4               # LoRA rank
+  lora_alpha: 16          # LoRA alpha scaling
+  num_classes: 19         # Number of output classes (BigEarthNet)
+
+# =============================================================================
+# Data Configuration
+# =============================================================================
+data:
+  batch_size: 64
+  num_workers: 4
+  include_snowy: false
+  include_cloudy: false
+
+# =============================================================================
+# Training Configuration
+# =============================================================================
+training:
+  epochs: 15
+  lr: 1e-3
+  patience: 5           # Early stopping patience
+  min_delta: 0.01       # Minimum improvement for early stopping
+  log_every_n_steps: 50
+
+# =============================================================================
+# Experiment Configuration
+# =============================================================================
+experiment:
+  type: no_replay       # Options: replay, no_replay, ZipLoRA, LoRAHub, LoRASoups
+  countries:
+    - Finland
+    - Ireland
+    - Serbia
+    - Austria
+    - Portugal
+  permutation: [0, 1, 2, 3, 4]
+  train_samples: 22482  # Samples per country for training
+  test_samples: 8176    # Samples per country for testing
+  memory_size: 500      # Total replay memory budget for merge experiments
+  seed: 42
+  train_frac: 0.9       # Train/val split fraction
+

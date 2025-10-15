@@ -1,0 +1,14 @@
+# LoRAHub merge experiment configuration
+
+_base_: ../default.yaml
+
+model:
+  backbone: spectral_gpt
+  lora_r: 4
+  lora_alpha: 16
+
+experiment:
+  type: LoRAHub
+  memory_size: 500
+  train_samples: 22482
+  test_samples: 8176

@@ -1,0 +1,28 @@
+# Core dependencies
+torch>=2.0
+pytorch-lightning>=2.0
+torchvision
+timm
+einops
+
+# Data handling
+pandas
+numpy
+pyarrow
+
+# Configuration
+pyyaml
+python-dotenv
+
+# Model serialization
+safetensors
+joblib
+
+# Metrics
+scikit-learn
+
+# CLI
+typer
+
+# BigEarthNet dataset
+configilm
