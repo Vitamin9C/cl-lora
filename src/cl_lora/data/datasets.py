@@ -3,10 +3,12 @@
 from __future__ import annotations
 
 import random
-from typing import Literal
+from typing import TYPE_CHECKING, Literal
 
 import pandas as pd
-from configilm.extra.DataSets.BENv2_DataSet import BENv2DataSet
+
+if TYPE_CHECKING:
+    from configilm.extra.DataSets.BENv2_DataSet import BENv2DataSet
 
 from .constants import get_datapath
 from .transforms import get_train_transform, get_val_transform
@@ -21,16 +23,20 @@ def load_country_train_val(
     split: Literal["train", "test"] = "train",
     train_frac: float = 0.8,
     model_type: Literal["spectral_gpt", "softcon"] = "spectral_gpt",
+    augment: bool = True,
 ) -> tuple[BENv2DataSet, BENv2DataSet]:
-    """Load country-specific train/val datasets."""
+    """Load country-specific train/val datasets (augment=False: no train augmentation)."""
+    # Imported here so that saved datasets and merging work without configilm installed
+    from configilm.extra.DataSets.BENv2_DataSet import BENv2DataSet
+
     datapath = get_datapath()
     meta = pd.read_parquet(datapath["metadata_parquet"])
 
     img_size = 224 if model_type.lower() == "softcon" else 128
     img_size_ben = (14, img_size, img_size)
 
-    train_transform = get_train_transform(model_type, img_size)
     val_transform = get_val_transform(model_type, img_size)
+    train_transform = get_train_transform(model_type, img_size) if augment else val_transform
 
     mask = (meta.country == country) & (meta.split == split)
     available = meta.loc[mask, "patch_id"].tolist()
@@ -71,8 +77,18 @@ def get_datasets(
     seed: int = 0,
     train_frac: float = 0.8,
     model_type: Literal["spectral_gpt", "softcon"] = "spectral_gpt",
+    saved_dir: str | None = None,
 ) -> tuple[list[BENv2DataSet], list[BENv2DataSet]]:
-    """Load datasets for multiple countries."""
+    """Load datasets for multiple countries, in permutation order.
+
+    With ``saved_dir`` the datasets are read from files written by
+    ``cl_lora.data.saved.save_country_datasets`` instead of the BigEarthNet LMDB.
+    """
+    if saved_dir:
+        from .saved import load_saved_datasets
+
+        return load_saved_datasets(countries, permutation, saved_dir, split, train_frac, seed)
+
     train_datasets, val_datasets = [], []
 
     for idx in permutation:

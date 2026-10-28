@@ -1,0 +1,10 @@
+# LoRASoups merge experiment (continual merging of task-tuned heads)
+
+_base_: ../default.yaml
+
+model:
+  backbone: spectral_gpt
+
+merge:
+  type: LoRASoups
+  approach: continual

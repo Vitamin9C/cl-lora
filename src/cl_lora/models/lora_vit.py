@@ -23,7 +23,7 @@ class _LoRALayer(nn.Module):
         self.alpha = alpha
 
     def forward(self, x):
-        x = self.w(x) + (self.alpha // self.r) * self.w_b(self.w_a(x))
+        x = self.w(x) + (self.alpha / self.r) * self.w_b(self.w_a(x))
         return x
 
 
@@ -336,8 +336,8 @@ class _LoRA_qkv_timm(nn.Module):
         qkv = self.qkv(x)  # B,N,3*org_C
         new_q = self.linear_b_q(self.linear_a_q(x))
         new_v = self.linear_b_v(self.linear_a_v(x))
-        qkv[:, :, : self.dim] += (self.alpha // self.r) * new_q
-        qkv[:, :, -self.dim :] += (self.alpha // self.r) * new_v
+        qkv[:, :, : self.dim] += (self.alpha / self.r) * new_q
+        qkv[:, :, -self.dim :] += (self.alpha / self.r) * new_v
         return qkv
 
 
@@ -571,7 +571,7 @@ class LoRA_ViT_timm_x(nn.Module):
 
                     r = int(melo_info[3])
                     alpha = int(melo_info[4])
-                    scale_list.append(alpha // r)
+                    scale_list.append(alpha / r)
 
                     w_a_linear_q = nn.Linear(self.dim, r, bias=False)
                     w_b_linear_q = nn.Linear(r, self.dim, bias=False)

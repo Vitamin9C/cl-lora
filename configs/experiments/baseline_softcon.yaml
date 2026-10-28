@@ -11,5 +11,3 @@ model:
 
 experiment:
   type: no_replay
-  train_samples: 22482
-  test_samples: 8176

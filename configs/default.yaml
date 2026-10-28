@@ -1,5 +1,5 @@
 # Default configuration for CL-LoRA experiments
-# Override values via command line or environment variables
+# Values match the runs whose logs are in logs/ (SpectralGPT, 4 countries).
 
 # =============================================================================
 # Model Configuration
@@ -7,43 +7,54 @@
 model:
   backbone: spectral_gpt  # Options: spectral_gpt, softcon
   lora_r: 4               # LoRA rank
-  lora_alpha: 16          # LoRA alpha scaling
+  lora_alpha: 16          # LoRA alpha (scaling = alpha / r)
   num_classes: 19         # Number of output classes (BigEarthNet)
 
 # =============================================================================
 # Data Configuration
 # =============================================================================
 data:
-  batch_size: 64
+  batch_size: 16
   num_workers: 4
   include_snowy: false
   include_cloudy: false
+  saved_datasets_dir: null  # set to a directory written by scripts/save_datasets.py
 
 # =============================================================================
 # Training Configuration
 # =============================================================================
 training:
   epochs: 15
-  lr: 1e-3
-  patience: 5           # Early stopping patience
-  min_delta: 0.01       # Minimum improvement for early stopping
+  lr: 1e-4
+  patience: null        # Early stopping patience; null trains for the full number of epochs
   log_every_n_steps: 50
 
 # =============================================================================
 # Experiment Configuration
 # =============================================================================
 experiment:
-  type: no_replay       # Options: replay, no_replay, ZipLoRA, LoRAHub, LoRASoups
+  type: no_replay       # Options: replay, no_replay, task_tuning
   countries:
     - Finland
     - Ireland
     - Serbia
-    - Austria
     - Portugal
-  permutation: [0, 1, 2, 3, 4]
-  train_samples: 22482  # Samples per country for training
-  test_samples: 8176    # Samples per country for testing
-  memory_size: 500      # Total replay memory budget for merge experiments
+  permutation: [0, 1, 2, 3]
+  train_samples: 5000   # Samples per country for training (train + validation)
+  test_samples: 500     # Samples per country for testing
+  memory_size: 500      # Total replay memory for continual merging
   seed: 42
   train_frac: 0.9       # Train/val split fraction
 
+# =============================================================================
+# Merge Configuration (scripts/train_merge.py)
+# =============================================================================
+merge:
+  type: ZipLoRA         # Options: ZipLoRA, LoRASoups, LoRAHub
+  approach: continual   # Options: continual, from_scratch
+  task_heads_dir: null  # directory with <country>_lora/_fc.safetensors; default $PATHS_TASK_HEADS
+  epochs: 15            # epochs for the merge parameters and the classifier
+  zip_cos_weight: 1.0   # ZipLoRA: weight of the merger-vector overlap penalty
+  zip_init: 0.5         # ZipLoRA: initial merger vector value
+  hub_budget: 40        # LoRAHub: Nevergrad evaluations
+  hub_l1: 0.05          # LoRAHub: L1 penalty on the head weights

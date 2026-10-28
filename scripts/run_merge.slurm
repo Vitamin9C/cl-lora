@@ -28,6 +28,7 @@ export PYTHONPATH="${SLURM_SUBMIT_DIR}/src:${PYTHONPATH}"
 # Configuration
 CONFIG_FILE="${1:-configs/experiments/merge_ziplora.yaml}"
 MERGE_TYPE="${2:-ZipLoRA}"  # Options: ZipLoRA, LoRAHub, LoRASoups
+APPROACH="${3:-continual}"  # Options: continual, from_scratch
 
 echo "============================================"
 echo "CL-LoRA Merge Experiment"
@@ -36,13 +37,15 @@ echo "Job ID: $SLURM_JOB_ID"
 echo "Node: $SLURM_NODELIST"
 echo "Config: $CONFIG_FILE"
 echo "Merge Type: $MERGE_TYPE"
+echo "Approach: $APPROACH"
 echo "Start time: $(date)"
 echo "============================================"
 
 # Run experiment
 python -m cl_lora.experiments.merge \
     --config "$CONFIG_FILE" \
-    --merge-type "$MERGE_TYPE"
+    --merge-type "$MERGE_TYPE" \
+    --approach "$APPROACH"
 
 echo "============================================"
 echo "End time: $(date)"

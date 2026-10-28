@@ -41,12 +41,14 @@ ENV/
 # Jupyter
 .ipynb_checkpoints/
 
-# Logs and outputs
+# Logs and outputs (logs/baseline and logs/merge hold the reported runs and are tracked)
 *.log
 *.err
 *.out
 log/
-logs/
+logs/runs/
+!logs/baseline/**
+!logs/merge/**
 
 # Model checkpoints and saved models
 saved_models/
@@ -68,7 +70,6 @@ archive/
 Thumbs.db
 
 # Project specific
-baseline/saved_models/*
 softcon/
 demos/
 

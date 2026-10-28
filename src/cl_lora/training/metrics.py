@@ -150,3 +150,37 @@ def compute_forgetting(
         "max_forgetting": max(forgetting_values) if forgetting_values else 0.0,
         "per_task_forgetting": forgetting_per_task,
     }
+
+
+def forgetting_and_intransigence(acc_matrix, joint_acc=None):
+    """Forgetting and intransigence of a continual learning run (Chaudhry et al. 2018).
+
+    Args:
+        acc_matrix: (K, K) array; entry [k, j] is the metric on task j after training
+            through task k (0-based). Entries with j > k may be NaN.
+        joint_acc: Optional length-K array; entry k is the metric on task k of the
+            joint-training reference. Needed for intransigence.
+
+    Returns:
+        F_per_k: Length-K array; mean forgetting after task k (0 for k = 0).
+        I_per_k: Length-K array; intransigence on task k (NaN without joint_acc).
+        f_taskwise: (K, K) array of per-task forgetting (defined for j < k).
+    """
+    import numpy as np
+
+    acc_matrix = np.asarray(acc_matrix, dtype=float)
+    K = acc_matrix.shape[0]
+    f_taskwise = np.full((K, K), np.nan)
+    F_per_k = np.zeros(K)
+    I_per_k = np.full(K, np.nan)
+
+    for k in range(1, K):
+        for j in range(k):
+            f_taskwise[k, j] = np.nanmax(acc_matrix[:k, j]) - acc_matrix[k, j]
+        F_per_k[k] = np.nanmean(f_taskwise[k, :k])
+
+    if joint_acc is not None:
+        joint_acc = np.asarray(joint_acc, dtype=float)
+        I_per_k = joint_acc - np.diag(acc_matrix)
+
+    return F_per_k, I_per_k, f_taskwise

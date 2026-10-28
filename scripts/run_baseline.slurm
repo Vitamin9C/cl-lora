@@ -27,7 +27,7 @@ export PYTHONPATH="${SLURM_SUBMIT_DIR}/src:${PYTHONPATH}"
 
 # Configuration
 CONFIG_FILE="${1:-configs/experiments/baseline_spectral.yaml}"
-EXPERIMENT_TYPE="${2:-no_replay}"  # Options: replay, no_replay
+EXPERIMENT_TYPE="${2:-no_replay}"  # Options: replay, no_replay, task_tuning
 
 echo "============================================"
 echo "CL-LoRA Baseline Experiment"

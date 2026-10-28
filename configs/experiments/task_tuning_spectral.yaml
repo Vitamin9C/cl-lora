@@ -1,0 +1,14 @@
+# Task tuning with SpectralGPT backbone
+# One independent LoRA + classifier per country; the saved heads are the input of
+# the merge experiments (set PATHS_TASK_HEADS or merge.task_heads_dir to the output)
+
+_base_: ../default.yaml
+
+model:
+  backbone: spectral_gpt
+
+training:
+  epochs: 20
+
+experiment:
+  type: task_tuning

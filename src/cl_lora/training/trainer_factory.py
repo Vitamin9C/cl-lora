@@ -19,7 +19,7 @@ from pytorch_lightning.callbacks import (
 def create_trainer(
     max_epochs: int = 15,
     save_dir: str = "./saved_models",
-    patience: int = 5,
+    patience: int | None = None,
     min_delta: float = 0.01,
     log_every_n_steps: int = 50,
     accelerator: str = "auto",
@@ -29,7 +29,7 @@ def create_trainer(
     """Create and configure a PyTorch Lightning Trainer.
 
     Sets up a trainer with:
-    - Early stopping based on validation loss
+    - Early stopping based on validation loss (optional)
     - Model checkpointing (saves best model)
     - Learning rate monitoring
     - DDP strategy for multi-GPU training
@@ -37,7 +37,7 @@ def create_trainer(
     Args:
         max_epochs: Maximum number of training epochs
         save_dir: Directory for saving checkpoints and logs
-        patience: Early stopping patience (epochs without improvement)
+        patience: Early stopping patience (epochs without improvement); None disables early stopping
         min_delta: Minimum change to qualify as improvement
         log_every_n_steps: Logging frequency
         accelerator: Accelerator type ("auto", "gpu", "cpu")
@@ -51,15 +51,19 @@ def create_trainer(
         >>> trainer = create_trainer(max_epochs=25, save_dir="./outputs")
         >>> trainer.fit(model, train_loader, val_loader)
     """
-    # Early stopping callback
-    early_stopping = EarlyStopping(
-        monitor="val_loss",
-        patience=patience,
-        mode="min",
-        min_delta=min_delta,
-        check_on_train_epoch_end=True,
-        verbose=True,
-    )
+    callbacks = []
+    # Early stopping callback (the reported runs trained for a fixed number of epochs)
+    if patience is not None:
+        callbacks.append(
+            EarlyStopping(
+                monitor="val_loss",
+                patience=patience,
+                mode="min",
+                min_delta=min_delta,
+                check_on_train_epoch_end=True,
+                verbose=True,
+            )
+        )
 
     # Model checkpoint callback
     checkpoint_callback = ModelCheckpoint(
@@ -93,7 +97,7 @@ def create_trainer(
         strategy=strategy,
         log_every_n_steps=log_every_n_steps,
         default_root_dir=save_dir,
-        callbacks=[early_stopping, checkpoint_callback, lr_monitor],
+        callbacks=callbacks + [checkpoint_callback, lr_monitor],
         **kwargs,
     )
 
@@ -113,6 +117,6 @@ def create_trainer_from_config(config: dict[str, Any]) -> L.Trainer:
     return create_trainer(
         max_epochs=config.get("epoch", 15),
         save_dir=config.get("save_dir", "./saved_models"),
-        patience=config.get("patience", 5),
+        patience=config.get("patience"),
         log_every_n_steps=config.get("log_every_n_steps", 50),
     )

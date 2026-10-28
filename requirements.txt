@@ -1,4 +1,4 @@
-# Core dependencies
+# Core dependencies (exact versions of the cluster runs: requirements.lock.txt)
 torch>=2.0
 pytorch-lightning>=2.0
 torchvision
@@ -20,6 +20,9 @@ joblib
 
 # Metrics
 scikit-learn
+
+# LoRAHub gradient-free search
+nevergrad
 
 # CLI
 typer
